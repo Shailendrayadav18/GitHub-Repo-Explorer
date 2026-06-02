@@ -48,18 +48,7 @@ const getRepos = async (
     }
   );
 
-  return response.data.map((repo) => ({
-    id: repo.id,
-    name: repo.name,
-    description: repo.description,
-    language: repo.language,
-    stars: repo.stargazers_count,
-    forks: repo.forks_count,
-    openIssues: repo.open_issues_count,
-    defaultBranch: repo.default_branch,
-    updatedAt: repo.updated_at,
-    htmlUrl: repo.html_url,
-  }));
+  return response.data;
 };
 
 // Fetch language statistics
@@ -86,21 +75,17 @@ const getLanguageStats = (repos) => {
 
 const getGithubProfile = async (
   username,
-  page = 1,
-  perPage = 10
+  page,
+  perPage
 ) => {
   const [user, repos] = await Promise.all([
     getUser(username),
     getRepos(username, page, perPage),
   ]);
 
-  const languageStats =
-    getLanguageStats(repos);
-
   return {
     user,
     repos,
-    languageStats,
     pagination: {
       page,
       perPage,
