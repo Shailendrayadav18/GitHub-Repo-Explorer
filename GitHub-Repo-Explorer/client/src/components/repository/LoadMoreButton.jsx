@@ -1,20 +1,25 @@
 function LoadMoreButton({
   onClick,
+  loading,
 }) {
   return (
     <button
       onClick={onClick}
+      disabled={loading}
       className="
       mt-8
       w-full
-      bg-black
-      text-white
       py-3
       rounded-xl
+      bg-black
+      text-white
       hover:bg-gray-800
+      disabled:opacity-50
       "
     >
-      Load More
+      {loading
+        ? "Loading..."
+        : "Load More"}
     </button>
   );
 }
