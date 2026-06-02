@@ -1,28 +1,37 @@
-import { useQuery } from "@tanstack/react-query";
-
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchGithubProfile } from "../api/githubApi";
 
 export const useGithubUser = (
-  username,
-  page
+  username
 ) => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: [
       "github-user",
       username,
-      page,
     ],
-
-    queryFn: () =>
-      fetchGithubProfile(
-        username,
-        page
-      ),
 
     enabled: !!username,
 
-    staleTime: 60000,
+    initialPageParam: 1,
 
-    retry: 1,
+    queryFn: ({
+      pageParam,
+    }) =>
+      fetchGithubProfile(
+        username,
+        pageParam
+      ),
+
+    getNextPageParam: (
+      lastPage
+    ) => {
+      return lastPage.pagination
+        .hasMore
+        ? lastPage.pagination
+            .page + 1
+        : undefined;
+    },
+
+    staleTime: 60000,
   });
 };
