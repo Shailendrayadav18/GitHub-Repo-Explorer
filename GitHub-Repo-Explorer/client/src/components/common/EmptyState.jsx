@@ -9,7 +9,10 @@ function EmptyState() {
       />
 
       <h3 className="text-xl font-bold">
-        No Results
+        <img
+          src="/empty-state.svg"
+          alt="No results"
+        />
       </h3>
 
       <p className="text-gray-500">
