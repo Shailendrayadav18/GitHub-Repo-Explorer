@@ -1,46 +1,82 @@
 const cache = require("../cache/githubCache");
 
 const {
-  getUser,
-  getRepos,
+  getGithubProfile,
 } = require("../services/githubService");
 
-exports.fetchGithubData = async (req, res) => {
-  const { username } = req.params;
-
-  const cached = cache.get(username);
-
-  if (cached) {
-    return res.json(cached);
-  }
-
+const fetchGithubProfile = async (
+  req,
+  res
+) => {
   try {
-    const user = await getUser(username);
-    const repos = await getRepos(username);
+    const { username } = req.params;
 
-    const response = {
-      user,
-      repos,
-    };
+    const page =
+      Number(req.query.page) || 1;
 
-    cache.set(username, response);
+    const perPage =
+      Number(req.query.perPage) || 10;
 
-    res.json(response);
-  } catch (err) {
-    if (err.response?.status === 404) {
+    const cacheKey = `${username}-${page}-${perPage}`;
+
+    const cached =
+      cache.get(cacheKey);
+
+    if (cached) {
+      return res.status(200).json({
+        success: true,
+        cached: true,
+        data: cached,
+      });
+    }
+
+    const data =
+      await getGithubProfile(
+        username,
+        page,
+        perPage
+      );
+
+    cache.set(cacheKey, data);
+
+    res.status(200).json({
+      success: true,
+      cached: false,
+      data,
+    });
+  } catch (error) {
+    if (error.response?.status === 404) {
       return res.status(404).json({
-        message: "User not found",
+        success: false,
+        message: "GitHub user not found",
       });
     }
 
-    if (err.response?.status === 403) {
+    if (error.response?.status === 403) {
       return res.status(403).json({
-        message: "GitHub rate limit exceeded",
+        success: false,
+        message:
+          "GitHub API rate limit exceeded",
       });
     }
 
-    res.status(500).json({
-      message: "Server error",
+    if (
+      error.code === "ECONNABORTED"
+    ) {
+      return res.status(504).json({
+        success: false,
+        message:
+          "GitHub request timed out",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
     });
   }
+};
+
+module.exports = {
+  fetchGithubProfile,
 };

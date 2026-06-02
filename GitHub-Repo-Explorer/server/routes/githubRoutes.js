@@ -1,9 +1,11 @@
-const router = require("express").Router();
+const express = require("express");
+
+const router = express.Router();
 
 const {
-  fetchGithubData,
+  fetchGithubProfile,
 } = require("../controllers/githubController");
 
-router.get("/:username", fetchGithubData);
+router.get("/:username", fetchGithubProfile);
 
 module.exports = router;
