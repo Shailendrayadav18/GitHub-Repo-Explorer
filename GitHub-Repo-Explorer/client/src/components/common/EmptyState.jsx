@@ -10,7 +10,7 @@ function EmptyState() {
 
       <h3 className="text-xl font-bold">
         <img
-          src="/empty-state.svg"
+          src="https://cdn-icons-png.flaticon.com/512/6134/6134065.png"
           alt="No results"
         />
       </h3>
