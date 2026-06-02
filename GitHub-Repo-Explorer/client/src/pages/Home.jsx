@@ -23,7 +23,6 @@ import { getLanguageData } from "../utils/languageStats";
 
 function Home() {
   const [username, setUsername] = useState("");
-  const [page, setPage] = useState(1);
   const [sortBy, setSortBy] = useState("stars");
 
   const debouncedUsername = useDebounce(username, 500);
@@ -34,59 +33,75 @@ function Home() {
     data,
     isLoading,
     error,
-  } = useGithubUser(
-    debouncedUsername,
-    page
-  );
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useGithubUser(debouncedUsername);
 
+  /*
+   * User profile comes from first page
+   */
+  const user = data?.pages?.[0]?.user;
+
+  /*
+   * Merge all repo pages together
+   */
+  const allRepos = useMemo(() => {
+    return (
+      data?.pages?.flatMap(
+        (page) => page.repos
+      ) || []
+    );
+  }, [data]);
+
+  /*
+   * Add recent search
+   */
   useEffect(() => {
     if (
-      data?.user &&
+      user &&
       debouncedUsername.trim()
     ) {
       addSearch(debouncedUsername);
     }
   }, [
-    data,
+    user,
     debouncedUsername,
+    addSearch,
   ]);
 
+  /*
+   * Sorting
+   */
   const sortedRepos = useMemo(() => {
     return sortRepos(
-      data?.repos || [],
+      allRepos,
       sortBy
     );
   }, [
-    data?.repos,
+    allRepos,
     sortBy,
   ]);
 
-  const languageData =
-    useMemo(() => {
-      return getLanguageData(
-        data?.repos || []
-      );
-    }, [data?.repos]);
+  /*
+   * Language Chart Data
+   */
+  const languageData = useMemo(() => {
+    return getLanguageData(
+      allRepos
+    );
+  }, [allRepos]);
+
+  const handleSearchChange = (
+    value
+  ) => {
+    setUsername(value);
+  };
 
   const handleRecentSearch =
     (value) => {
       setUsername(value);
-      setPage(1);
     };
-
-  const handleSearchChange =
-    (value) => {
-      setUsername(value);
-      setPage(1);
-    };
-
-  const handleLoadMore = () => {
-    if (
-      data?.pagination?.hasMore
-    ) {
-      setPage((prev) => prev + 1);
-    }
-  };
 
   return (
     <div
@@ -106,7 +121,7 @@ function Home() {
         py-8
         "
       >
-        {/* HEADER */}
+        {/* HERO */}
 
         <div className="text-center mb-10">
           <h1
@@ -114,7 +129,11 @@ function Home() {
             text-4xl
             md:text-5xl
             font-extrabold
-            text-slate-900
+            bg-gradient-to-r
+            from-blue-600
+            to-indigo-600
+            bg-clip-text
+            text-transparent
             "
           >
             GitHub Repo Explorer
@@ -122,8 +141,8 @@ function Home() {
 
           <p
             className="
-            text-slate-500
             mt-3
+            text-gray-600
             "
           >
             Search GitHub users and
@@ -133,24 +152,26 @@ function Home() {
 
         {/* SEARCH */}
 
-        <SearchBar
-          value={username}
-          onChange={
-            handleSearchChange
-          }
-        />
+        <div className="max-w-3xl mx-auto">
+          <SearchBar
+            value={username}
+            onChange={
+              handleSearchChange
+            }
+          />
 
-        <RecentSearches
-          searches={searches}
-          onSelect={
-            handleRecentSearch
-          }
-        />
+          <RecentSearches
+            searches={searches}
+            onSelect={
+              handleRecentSearch
+            }
+          />
+        </div>
 
-        {/* LOADING */}
+        {/* INITIAL LOADING */}
 
         {isLoading && (
-          <div className="mt-10">
+          <div className="mt-12">
             <Loader />
           </div>
         )}
@@ -169,40 +190,36 @@ function Home() {
           </div>
         )}
 
-        {/* EMPTY */}
+        {/* NO USER YET */}
 
         {!isLoading &&
           !error &&
-          !data &&
-          username && (
-            <EmptyState />
+          !user &&
+          !username && (
+            <div className="mt-16">
+              <EmptyState />
+            </div>
           )}
 
         {/* CONTENT */}
 
         {!isLoading &&
           !error &&
-          data && (
+          user && (
             <div
               className="
               grid
               grid-cols-1
               lg:grid-cols-3
-              gap-6
-              mt-8
+              gap-8
+              mt-10
               "
             >
-              {/* SIDEBAR */}
+              {/* LEFT SIDEBAR */}
 
-              <aside
-                className="
-                space-y-6
-                "
-              >
+              <aside className="space-y-6">
                 <UserProfileCard
-                  user={
-                    data.user
-                  }
+                  user={user}
                 />
 
                 <LanguageChart
@@ -212,13 +229,9 @@ function Home() {
                 />
               </aside>
 
-              {/* REPOS */}
+              {/* RIGHT SECTION */}
 
-              <main
-                className="
-                lg:col-span-2
-                "
-              >
+              <main className="lg:col-span-2">
                 <div
                   className="
                   flex
@@ -230,27 +243,33 @@ function Home() {
                   mb-6
                   "
                 >
-                  <h2
-                    className="
-                    text-2xl
-                    font-bold
-                    "
-                  >
-                    Repositories
-                  </h2>
+                  <div>
+                    <h2
+                      className="
+                      text-2xl
+                      font-bold
+                      "
+                    >
+                      Repositories
+                    </h2>
+
+                    <p className="text-gray-500">
+                      {
+                        allRepos.length
+                      }{" "}
+                      loaded
+                    </p>
+                  </div>
 
                   <SortDropdown
-                    value={
-                      sortBy
-                    }
+                    value={sortBy}
                     onChange={
                       setSortBy
                     }
                   />
                 </div>
 
-                {sortedRepos
-                  .length ===
+                {sortedRepos.length ===
                 0 ? (
                   <EmptyState />
                 ) : (
@@ -261,12 +280,13 @@ function Home() {
                       }
                     />
 
-                    {data
-                      ?.pagination
-                      ?.hasMore && (
+                    {hasNextPage && (
                       <LoadMoreButton
                         onClick={
-                          handleLoadMore
+                          fetchNextPage
+                        }
+                        loading={
+                          isFetchingNextPage
                         }
                       />
                     )}
