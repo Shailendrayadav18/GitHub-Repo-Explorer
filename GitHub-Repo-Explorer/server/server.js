@@ -6,7 +6,11 @@ const githubRoutes = require("./routes/githubRoutes");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: [
+      "https://git-hub-repo-explorer-virid.vercel.app",
+    ],
+}));
 app.use(express.json());
 
 app.use("/api/github", githubRoutes);
