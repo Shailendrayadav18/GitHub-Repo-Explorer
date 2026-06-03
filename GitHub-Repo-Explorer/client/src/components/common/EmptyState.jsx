@@ -4,19 +4,17 @@ function EmptyState() {
   return (
     <div className="text-center py-16">
       <SearchX
-        size={60}
-        className="mx-auto mb-4"
+        size={90}
+        className="mx-auto text-gray-400 mb-6"
       />
 
-      <h3 className="text-xl font-bold">
-        <img
-          src="https://cdn-icons-png.flaticon.com/512/6134/6134065.png"
-          alt="No results"
-        />
+      <h3 className="text-3xl font-bold">
+        Search GitHub Profiles
       </h3>
 
-      <p className="text-gray-500">
-        Search a GitHub profile.
+      <p className="text-gray-500 mt-3">
+        Find repositories, languages,
+        stars and contributors
       </p>
     </div>
   );
