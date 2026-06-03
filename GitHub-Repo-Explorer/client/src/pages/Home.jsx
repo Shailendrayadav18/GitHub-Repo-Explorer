@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { FaGithub } from "react-icons/fa";
 
 import SearchBar from "../components/search/SearchBar";
 import RecentSearches from "../components/search/RecentSearches";
@@ -15,7 +16,6 @@ import ErrorMessage from "../components/common/ErrorMessage";
 import EmptyState from "../components/common/EmptyState";
 
 import { useGithubUser } from "../hooks/useGithubUser";
-import { useDebounce } from "../hooks/useDebounce";
 import { useRecentSearches } from "../hooks/useRecentSearches";
 
 import { sortRepos } from "../utils/sortRepos";
@@ -23,9 +23,8 @@ import { getLanguageData } from "../utils/languageStats";
 
 function Home() {
   const [username, setUsername] = useState("");
+  const [searchedUser, setSearchedUser] = useState("");
   const [sortBy, setSortBy] = useState("stars");
-
-  const debouncedUsername = useDebounce(username, 500);
 
   const { searches, addSearch } = useRecentSearches();
 
@@ -36,21 +35,32 @@ function Home() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useGithubUser(debouncedUsername);
+  } = useGithubUser(searchedUser);
+
+  console.log(data);
+  const showWelcome = searchedUser === "";
 
   /*
    * User profile comes from first page
    */
-  const user = data?.pages?.[0]?.user;
+  const user = data?.pages?.[0]?.user || null;
 
   /*
    * Merge all repo pages together
    */
   const allRepos = useMemo(() => {
-    return (
-      data?.pages?.flatMap(
-        (page) => page.repos
-      ) || []
+    if (
+      !data ||
+      !Array.isArray(data.pages)
+    ) {
+      return [];
+    }
+
+    return data.pages.flatMap(
+      (page) =>
+        Array.isArray(page?.repos)
+          ? page.repos
+          : []
     );
   }, [data]);
 
@@ -58,15 +68,12 @@ function Home() {
    * Add recent search
    */
   useEffect(() => {
-    if (
-      user &&
-      debouncedUsername.trim()
-    ) {
-      addSearch(debouncedUsername);
+    if (user && searchedUser) {
+      addSearch(searchedUser);
     }
   }, [
     user,
-    debouncedUsername,
+    searchedUser,
     addSearch,
   ]);
 
@@ -92,6 +99,20 @@ function Home() {
     );
   }, [allRepos]);
 
+  const handleSearch = () => {
+    const trimmed =
+      username.trim();
+
+    if (trimmed.length < 3) {
+      alert(
+        "Please enter at least 3 characters"
+      );
+      return;
+    }
+
+    setSearchedUser(trimmed);
+  };
+
   const handleSearchChange = (
     value
   ) => {
@@ -101,6 +122,7 @@ function Home() {
   const handleRecentSearch =
     (value) => {
       setUsername(value);
+      setSearchedUser(value);
     };
 
   return (
@@ -124,6 +146,12 @@ function Home() {
         {/* HERO */}
 
         <div className="text-center mb-10">
+          <div className="flex justify-center mb-4">
+            <FaGithub
+              size={70}
+              className="text-slate-900"
+            />
+          </div>
           <h1
             className="
             text-4xl
@@ -152,12 +180,11 @@ function Home() {
 
         {/* SEARCH */}
 
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           <SearchBar
             value={username}
-            onChange={
-              handleSearchChange
-            }
+            onChange={handleSearchChange}
+            onSearch={handleSearch}
           />
 
           <RecentSearches
@@ -197,7 +224,9 @@ function Home() {
           !user &&
           !username && (
             <div className="mt-16">
-              <EmptyState />
+              {showWelcome && (
+                <EmptyState />
+              )}
             </div>
           )}
 
@@ -223,10 +252,10 @@ function Home() {
                 />
 
                 <LanguageChart
-                  data={
-                    languageData
+                 data={
+                  languageData
                   }
-                />
+                /> 
               </aside>
 
               {/* RIGHT SECTION */}
@@ -270,7 +299,7 @@ function Home() {
                 </div>
 
                 {sortedRepos.length ===
-                0 ? (
+                  0 ? (
                   <EmptyState />
                 ) : (
                   <>

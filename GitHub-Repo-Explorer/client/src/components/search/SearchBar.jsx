@@ -1,6 +1,10 @@
 import { Search } from "lucide-react";
 
-function SearchBar({ value, onChange }) {
+function SearchBar({
+  value,
+  onChange,
+  onSearch,
+}) {
   return (
     <div className="flex gap-3">
       <div className="relative flex-1">
@@ -18,26 +22,30 @@ function SearchBar({ value, onChange }) {
         <input
           type="text"
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) =>
+            onChange(e.target.value)
+          }
           placeholder="Search GitHub username..."
           className="
             w-full
             pl-12
             pr-4
             py-4
-            bg-white
-            border
-            border-gray-200
             rounded-2xl
+            border
+            border-gray-300
             shadow-md
-            focus:outline-none
-            focus:ring-2
-            focus:ring-blue-500
           "
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              onSearch();
+            }
+          }}
         />
       </div>
 
       <button
+        onClick={onSearch}
         className="
           px-6
           py-4
@@ -45,8 +53,6 @@ function SearchBar({ value, onChange }) {
           text-white
           rounded-2xl
           hover:bg-blue-700
-          transition
-          shadow-md
         "
       >
         Search

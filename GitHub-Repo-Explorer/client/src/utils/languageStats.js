@@ -14,9 +14,9 @@ export const getLanguageData = (
 
   return Object.entries(stats)
     .map(
-      ([language, count]) => ({
-        name: language,
-        value: count,
+      ([name, value]) => ({
+        name,
+        value,
       })
     );
 };
