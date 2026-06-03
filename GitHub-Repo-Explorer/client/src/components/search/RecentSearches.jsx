@@ -23,9 +23,12 @@ function RecentSearches({
             py-1
             bg-white
             border
+            border-blue-300
             rounded-full
             shadow-sm
             hover:bg-blue-50
+            hover:border-blue-500
+            transition-all
             "
           >
             {item}

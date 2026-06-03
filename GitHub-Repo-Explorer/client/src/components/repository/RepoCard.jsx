@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Calendar,
   Star,
   GitFork,
   AlertCircle,
@@ -11,6 +12,18 @@ import {
 function RepoCard({ repo }) {
   const [expanded, setExpanded] =
     useState(false);
+
+  const formattedDate =
+    new Date(
+      repo.updated_at
+    ).toLocaleDateString(
+      "en-US",
+      {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }
+    );
 
   return (
     <div
@@ -97,6 +110,13 @@ function RepoCard({ repo }) {
             {" "}
             {repo.default_branch}
           </p>
+
+          <div className="flex items-center gap-2">
+            <Calendar size={16} />
+            <span>
+              Updated {formattedDate}
+            </span>
+          </div>
 
           <a
             href={repo.html_url}

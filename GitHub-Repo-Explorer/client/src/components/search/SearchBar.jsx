@@ -32,9 +32,15 @@ function SearchBar({
             pr-4
             py-4
             rounded-2xl
-            border
-            border-gray-300
+            border-2
+            border-puple-400
+            bg-white
             shadow-md
+            focus:outline-none
+            focus:ring-2
+            focus:ring-purple-200
+            focus:border-purple-500
+            transition-all
           "
           onKeyDown={(e) => {
             if (e.key === "Enter") {

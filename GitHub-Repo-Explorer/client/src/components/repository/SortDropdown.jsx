@@ -11,10 +11,14 @@ function SortDropdown({
       className="
       px-4
       py-2
-      border
+      border-2
       rounded-xl
       bg-white
-      shadow-sm
+      border-amber-400
+      shadow-md
+      focus:outline-none
+      focus:ring-2
+      focus:ring-amber-200
       "
     >
       <option value="stars">
