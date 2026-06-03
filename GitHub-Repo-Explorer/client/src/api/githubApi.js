@@ -4,7 +4,7 @@ export const fetchGithubProfile = async (
   username,
   page = 1
 ) => {
-  const { data } = await api.get(
+  const response = await api.get(
     `/api/github/${username}`,
     {
       params: {
@@ -14,5 +14,5 @@ export const fetchGithubProfile = async (
     }
   );
 
-  return data.data;
+  return response.data.data;
 };
