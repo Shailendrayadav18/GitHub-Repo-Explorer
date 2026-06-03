@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { FaGithub } from "react-icons/fa";
 
 import SearchBar from "../components/search/SearchBar";
@@ -37,7 +37,6 @@ function Home() {
     isFetchingNextPage,
   } = useGithubUser(searchedUser);
 
-  console.log(data);
   const showWelcome = searchedUser === "";
 
   /*
@@ -63,19 +62,6 @@ function Home() {
           : []
     );
   }, [data]);
-
-  /*
-   * Add recent search
-   */
-  useEffect(() => {
-    if (user && searchedUser) {
-      addSearch(searchedUser);
-    }
-  }, [
-    user,
-    searchedUser,
-    addSearch,
-  ]);
 
   /*
    * Sorting
@@ -109,6 +95,8 @@ function Home() {
       );
       return;
     }
+
+    addSearch(trimmed);
 
     setSearchedUser(trimmed);
   };
