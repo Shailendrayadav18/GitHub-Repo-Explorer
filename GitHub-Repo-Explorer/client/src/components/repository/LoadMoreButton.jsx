@@ -7,13 +7,16 @@ function LoadMoreButton({
       onClick={onClick}
       disabled={loading}
       className="
-      mt-8
       w-full
+      mt-8
       py-3
       rounded-xl
-      bg-black
+      bg-gradient-to-r
+      from-blue-600
+      to-indigo-600
       text-white
-      hover:bg-gray-800
+      font-medium
+      hover:opacity-90
       disabled:opacity-50
       "
     >

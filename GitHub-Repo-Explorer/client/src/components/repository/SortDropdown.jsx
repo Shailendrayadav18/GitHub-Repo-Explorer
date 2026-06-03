@@ -6,27 +6,27 @@ function SortDropdown({
     <select
       value={value}
       onChange={(e) =>
-        onChange(
-          e.target.value
-        )
+        onChange(e.target.value)
       }
       className="
-      border
-      rounded-lg
       px-4
       py-2
+      border
+      rounded-xl
+      bg-white
+      shadow-sm
       "
     >
       <option value="stars">
-        Stars
+        ⭐ Stars
       </option>
 
       <option value="name">
-        Name
+        🔤 Name
       </option>
 
       <option value="updated">
-        Updated
+        🕒 Updated
       </option>
     </select>
   );
