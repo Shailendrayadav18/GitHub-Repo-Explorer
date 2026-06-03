@@ -25,6 +25,8 @@ function Home() {
   const [username, setUsername] = useState("");
   const [searchedUser, setSearchedUser] = useState("");
   const [sortBy, setSortBy] = useState("stars");
+  const [repoSearch, setRepoSearch] =
+    useState("");
 
   const { searches, addSearch } = useRecentSearches();
 
@@ -66,15 +68,38 @@ function Home() {
   /*
    * Sorting
    */
-  const sortedRepos = useMemo(() => {
-    return sortRepos(
+  const filteredRepos =
+    useMemo(() => {
+      return allRepos.filter(
+        (repo) =>
+          repo.name
+            .toLowerCase()
+            .includes(
+              repoSearch.toLowerCase()
+            ) ||
+          (
+            repo.description || ""
+          )
+            .toLowerCase()
+            .includes(
+              repoSearch.toLowerCase()
+            )
+      );
+    }, [
       allRepos,
-      sortBy
-    );
-  }, [
-    allRepos,
-    sortBy,
-  ]);
+      repoSearch,
+    ]);
+
+  const sortedRepos =
+    useMemo(() => {
+      return sortRepos(
+        filteredRepos,
+        sortBy
+      );
+    }, [
+      filteredRepos,
+      sortBy,
+    ]);
 
   /*
    * Language Chart Data
@@ -240,10 +265,10 @@ function Home() {
                 />
 
                 <LanguageChart
-                 data={
-                  languageData
+                  data={
+                    languageData
                   }
-                /> 
+                />
               </aside>
 
               {/* RIGHT SECTION */}
@@ -269,13 +294,6 @@ function Home() {
                     >
                       Repositories
                     </h2>
-
-                    <p className="text-gray-500">
-                      {
-                        allRepos.length
-                      }{" "}
-                      loaded
-                    </p>
                   </div>
 
                   <SortDropdown
@@ -286,28 +304,108 @@ function Home() {
                   />
                 </div>
 
-                {sortedRepos.length ===
-                  0 ? (
-                  <EmptyState />
-                ) : (
-                  <>
-                    <RepoList
-                      repos={
-                        sortedRepos
-                      }
-                    />
+                {/* Repository Search - Always Visible */}
 
-                    {hasNextPage && (
-                      <LoadMoreButton
-                        onClick={
-                          fetchNextPage
-                        }
-                        loading={
-                          isFetchingNextPage
-                        }
-                      />
-                    )}
-                  </>
+                <div className="mb-5 relative">
+                  <input
+                    type="text"
+                    value={repoSearch}
+                    onChange={(e) =>
+                      setRepoSearch(e.target.value)
+                    }
+                    placeholder="Search repositories..."
+                    className="
+                      w-full
+                      md:w-80
+                      px-4
+                      py-3
+                      pr-10
+                      rounded-xl
+                      border-2
+                      border-cyan-400
+                      bg-white
+                      shadow-md
+                      focus:outline-none
+                      focus:ring-4
+                      focus:ring-cyan-200
+                    "
+                  />
+
+                  {repoSearch && (
+                    <button
+                      onClick={() =>
+                        setRepoSearch("")
+                      }
+                      className="
+                        absolute
+                                       right-3
+                        top-1/2
+                        -translate-y-1/2
+                        text-gray-500
+                        hover:text-black
+                        "
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {/* Repository Count */}
+
+                <p className="text-gray-500 mb-4">
+                  Showing {sortedRepos.length} of{" "}
+                  {allRepos.length} repositories
+                </p>
+
+                {/* Results */}
+
+                {sortedRepos.length === 0 ? (
+                  <div
+                    className="
+                      bg-white
+                      rounded-xl
+                      p-10
+                      text-center
+                      shadow
+                    "                  
+                  >
+                    <h3 className="text-xl font-semibold">
+                      No repositories found
+                    </h3>
+
+                    <p className="text-gray-500 mt-2">
+                      Try another keyword or clear the filter.
+                    </p>
+
+                    <button
+                      onClick={() =>
+                        setRepoSearch("")
+                      }
+                      className="
+                        mt-4
+                        px-4
+                        py-2
+                        bg-blue-600
+                        text-white
+                        rounded-lg
+                        "
+                    >
+                      Show All Repositories
+                    </button>
+                  </div>
+                ) : (
+                  <RepoList repos={sortedRepos} />
+                )}
+
+                {hasNextPage && (
+                  <LoadMoreButton
+                    onClick={
+                      fetchNextPage
+                    }
+                    loading={
+                      isFetchingNextPage
+                    }
+                  />
                 )}
               </main>
             </div>
