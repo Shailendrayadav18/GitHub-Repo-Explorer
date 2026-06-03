@@ -8,7 +8,7 @@ export const sortRepos = (
     case "stars":
       sorted.sort(
         (a, b) =>
-          b.stars - a.stars
+          b.stargazers_count - a.stargazers_count
       );
       break;
 
