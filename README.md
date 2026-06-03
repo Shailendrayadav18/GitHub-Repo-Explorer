@@ -139,11 +139,12 @@ npm install
 
 Create a `.env` file:
 
+// GitHub Account -> Settings -> Developer Settings -> Personal Access Token -> Fine-grained token -> Generate Token
+
 ```env
 PORT=5000
 GITHUB_TOKEN=your_github_personal_access_token     
 
-// GitHub Account -> Settings -> Developer Settings -> Personal Access Token -> Fine-grained token -> Generate Token
 ```
 
 
